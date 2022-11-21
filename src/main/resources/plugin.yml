@@ -1,0 +1,4 @@
+name: CustomMiningSpeedTut
+version: '${project.version}'
+main: me.itzjordon.miningspeed.Main
+api-version: 1.19
