@@ -54,7 +54,6 @@ public class MiningManager {
     }
 
     public void setBlockStage(Location loc, int stage) {
-        blockStages.remove(loc);
         blockStages.put(loc, stage);
     }
 
@@ -63,7 +62,7 @@ public class MiningManager {
     }
 
     public void sendBlockDamage(Player player, Location location) {
-        int locationId = location.getBlockX() >> location.getBlockZ() >> location.getBlockY();
+        int locationId = ((location.getBlockX() & 0x7FFFFFF) << 8) | (location.getBlockY() & 0xFF) | ((location.getBlockZ() & 0x7FFFFFF) << 24);
         PacketContainer packet = manager.createPacket(PacketType.Play.Server.BLOCK_BREAK_ANIMATION);
         packet.getIntegers().write(0, locationId); // set entity ID to the location
         packet.getBlockPositionModifier().write(0, new BlockPosition(location.toVector())); // set the block location

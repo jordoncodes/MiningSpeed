@@ -10,10 +10,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class MiningPacketListener {
 
@@ -67,18 +64,28 @@ public class MiningPacketListener {
                         Block block = currentlyMining.get(player.getUniqueId()).getBlock();
                         Block lb = lastBlock.get(player.getUniqueId());
                         if (lb == null) lb = block;
+                        lastBlock.remove(player.getUniqueId());
                         if (lb.getType() != block.getType()) currentlyMining.remove(player.getUniqueId());
-                        if (!miningManager.updateAndNextPhase(player)) return; // update the mining phase, return if the next phase isn't available.
+                        if (!miningManager.updateAndNextPhase(player))
+                            return; // update the mining phase, return if the next phase isn't available.
 
                         // send the block stage before updating mining. This will attempt to prevent placing blocks making destruction animations.
                         int blockStage = miningManager.getBlockStage(block.getLocation());
                         miningManager.sendBlockDamage(player, block.getLocation()); // send the block damage packet
-                        blockStage = ((blockStage+1) % 10); // increment the block stage, if it's already 10, set it back to 0.
+                        blockStage = ((blockStage + 1) % 10); // increment the block stage, if it's already 10, set it back to 0.
                         miningManager.setBlockStage(block.getLocation(), blockStage);
                         if (blockStage == 0) {
                             miningManager.removeBlockStage(block.getLocation()); // remove the block stage
+                            miningManager.sendBlockDamage(player, block.getLocation()); // send the block damage packet
                             block.breakNaturally(player.getInventory().getItemInMainHand()); // break the block
                         }
+                    } else {
+                        Block b = lastBlock.get(player.getUniqueId());
+                        if (b != null) {
+                            miningManager.setBlockStage(b.getLocation(), 0);
+                            miningManager.sendBlockDamage(player, b.getLocation());
+                        }
+                        lastBlock.remove(player.getUniqueId());
                     }
                 }
             }
