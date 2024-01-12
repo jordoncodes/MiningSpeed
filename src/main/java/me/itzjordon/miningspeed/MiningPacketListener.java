@@ -67,7 +67,7 @@ public class MiningPacketListener {
                         lastBlock.remove(player.getUniqueId());
                         if (lb.getType() != block.getType()) currentlyMining.remove(player.getUniqueId());
                         if (!miningManager.updateAndNextPhase(player))
-                            return; // update the mining phase, return if the next phase isn't available.
+                            continue; // update the mining phase, return if the next phase isn't available.
 
                         // send the block stage before updating mining. This will attempt to prevent placing blocks making destruction animations.
                         int blockStage = miningManager.getBlockStage(block.getLocation());
